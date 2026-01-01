@@ -11,6 +11,19 @@ const uint32_t HC12_BAUD = 2400;
 #define HC12_TX 11
 SoftwareSerial HC12(HC12_TX, HC12_RX);
 
+//OLED Display config 
+#include <Wire.h>
+#include <U8g2lib.h>
+U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C u8g2(
+  U8G2_R0,
+  /* reset=*/ U8X8_PIN_NONE
+);
+void splash_screen();
+void print_display( const char* msg);
+void print_log_display(const char* log);
+void drawCenteredText(const char* msg, int y_center);
+char map_str[3];
+
 //Commands for MCM
 //Motor map
 char motor_map[6][5] = {
@@ -43,8 +56,15 @@ char cam_l[5]  = { 'C', 'L', ' ', ' ', '\n' };
 #define accelerator_btn 6
 #define map_btn 7
 #define reverse_btn 8
+bool light_input = false;
+bool cam_left_input = false;
+bool cam_right_input = false;
+bool brake_input = false;
+bool accelerator_input = false;
+bool map_input = false;
+bool map_input_prev = false;
+bool reverse_input = false;
 
-bool light_input, cam_left_input, cam_right_input, brake_input, accelerator_input, map_input, map_input_prev, reverse_input = false;
 
 //Joystick config
 #define joy_x A0
@@ -53,8 +73,14 @@ const int DEAD_ZONE_JOYSTICK = 45;
 int angle, prev_angle {};
 
 void setup() {
-  HC12.begin(2400);
+  
   Serial.begin(9600);
+  Wire.begin();
+  u8g2.begin();
+  delay(50);
+  splash_screen();
+
+  HC12.begin(2400);
 
   pinMode(light_btn, INPUT);
   pinMode(cam_left_btn, INPUT);
@@ -154,9 +180,64 @@ void loop(){
     HC12.write(motor_map[current_map], 5);
     Serial.print("Motor map changed to: ");
     Serial.println(current_map);
+    map_str[0] = 'M';
+    map_str[1] = current_map + '0';
+    map_str[2] = '\0';
+    if (current_map == 0){
+      print_display("STOP",2);
+    }
+    else{
+      print_display(map_str,2);
+    }
   }
   map_input_prev = map_input;
 
 
 }
+
+void drawCenteredText(const char* msg, int y_center) {
+  uint16_t w = u8g2.getStrWidth(msg);
+  int x = (u8g2.getDisplayWidth() - w) / 2;
+  u8g2.drawStr(x, y_center, msg);
+}
+
+void splash_screen() {
+  u8g2.clearBuffer();
+  u8g2.setFont(u8g2_font_logisoso16_tf);
+  drawCenteredText("ROVER", 24);
+  u8g2.sendBuffer();
+  delay(800);
+
+  u8g2.clearBuffer();
+  u8g2.setFont(u8g2_font_logisoso18_tf);
+  drawCenteredText("AGR", 24);
+  u8g2.sendBuffer();
+  delay(800);
+
+  u8g2.clearBuffer();
+  u8g2.setFont(u8g2_font_logisoso16_tf);
+  drawCenteredText("ROVER", 24);
+  u8g2.sendBuffer();
+  delay(800);
+
+  u8g2.clearBuffer();
+  u8g2.setFont(u8g2_font_logisoso18_tf);
+  drawCenteredText("AGR", 24);
+  u8g2.sendBuffer();
+}
+
+void print_display(const char* msg, int size) {
+  u8g2.clearBuffer();
+
+  if (size == 1)
+    u8g2.setFont(u8g2_font_6x12_tf);
+  else if (size == 2)
+    u8g2.setFont(u8g2_font_logisoso16_tf);
+  else
+    u8g2.setFont(u8g2_font_logisoso18_tf);
+
+  drawCenteredText(msg, 24);
+  u8g2.sendBuffer();
+}
+
 
