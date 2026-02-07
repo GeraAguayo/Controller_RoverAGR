@@ -52,10 +52,10 @@ char cam_l[5]  = { 'C', 'L', ' ', ' ', '\n' };
 #define light_btn 2
 #define cam_left_btn 3
 #define cam_right_btn 4
-#define brake_btn 5
-#define accelerator_btn 6
-#define map_btn 7
-#define reverse_btn 8
+#define brake_btn 5//
+#define accelerator_btn 6//
+#define map_btn 7//
+#define reverse_btn 8//
 bool light_input = false;
 bool cam_left_input = false;
 bool cam_right_input = false;
@@ -82,13 +82,13 @@ void setup() {
 
   HC12.begin(2400);
 
-  pinMode(light_btn, INPUT);
-  pinMode(cam_left_btn, INPUT);
-  pinMode(cam_right_btn, INPUT);
-  pinMode(brake_btn, INPUT);
-  pinMode(accelerator_btn, INPUT);
-  pinMode(map_btn, INPUT);
-  pinMode(reverse_btn, INPUT); 
+  pinMode(light_btn, INPUT_PULLUP);
+  pinMode(cam_left_btn, INPUT_PULLUP);
+  pinMode(cam_right_btn, INPUT_PULLUP);
+  pinMode(brake_btn, INPUT_PULLUP);
+  pinMode(accelerator_btn, INPUT_PULLUP);
+  pinMode(map_btn, INPUT_PULLUP);
+  pinMode(reverse_btn, INPUT_PULLUP); 
   starting_val_x= analogRead(joy_x);
 }
 
