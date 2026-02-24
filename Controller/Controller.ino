@@ -34,7 +34,7 @@ char motor_map[6][5] = {
     { 'M', '4', ' ', ' ', '\n' },
     { 'M', '5', ' ', ' ', '\n' }
 };
-int current_map = 0;
+byte current_map = 0;
 //Motion control
 char forward[5]  = { 'F', ' ', ' ', ' ', '\n' };
 char backward[5] = { 'B', ' ', ' ', ' ', '\n' };
@@ -58,7 +58,9 @@ char cam_l[5]  = { 'C', 'L', ' ', ' ', '\n' };
 #define reverse_btn 8//
 bool light_input = false;
 bool cam_left_input = false;
+bool cam_left_prev = false;
 bool cam_right_input = false;
+bool cam_right_prev = false;
 bool brake_input = false;
 bool accelerator_input = false;
 bool map_input = false;
@@ -108,8 +110,6 @@ void loop(){
   angle = constrain(angle, 0, 180);
   //Send angle
   if (angle != prev_angle){
-    Serial.print("Angle: ");
-    Serial.println(angle);
     int arg_1 = angle / 100;
     int arg_2 = (angle % 100) / 10;
     int arg_3 = angle % 10;
@@ -132,9 +132,7 @@ void loop(){
     servo_l[1]  = ' ';
     servo_l[2]  = ' ';
     servo_l[3]  = ' ';
-
     prev_angle = angle;
-
   }
 
   //Read buttons input
@@ -150,11 +148,11 @@ void loop(){
     Serial.println("Light btn pressed");
     HC12.write(toggle_light, 5);
   }
-  if (cam_left_input){
+  if (cam_left_input == HIGH && cam_left_prev == LOW){
     Serial.println("CAM Left btn pressed");
     HC12.write(cam_l, 5);
   }
-  if (cam_right_input){
+  if (cam_right_input == HIGH && cam_right_prev == LOW){
     Serial.println("CAM Right btn pressed");
     HC12.write(cam_r, 5);
   }
@@ -191,6 +189,8 @@ void loop(){
     }
   }
   map_input_prev = map_input;
+  cam_right_prev = cam_right_input;
+  cam_left_prev = cam_left_input;
 
 
 }
